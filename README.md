@@ -1,85 +1,52 @@
-# Kessler — starter project
+# Kessler
 
-This repository is the starting point for building **Kessler**, the game the
-specification under `specs/` describes. Read `specs/overview.md` first; it says
-how the rest of the specification is organized.
+An orbital demolition arcade game. Circle a warm planet with a deflector, steer a spinning demolition ball through three rings of derelicts, and catch the salvage that falls from the wreckage. Clear the orbit to enter a faster wave. Keep one ball alive to preserve your hull.
 
-The project is already wired up. It builds on the **Simple 2D** engine, which is
-installed as an ordinary dependency and documents itself under `engine/` — read
-that alongside the specs. What is missing is the game, and the art and sound it
-plays.
+## Run
 
-## What you own
+Requires Node.js 22 or newer.
 
-**`src/game.ts`, and any new files you add beside it.**
+```sh
+npm ci
+npm run dev
+```
 
-`src/game.ts` declares and exports `KesslerState`, the whole authoritative state
-the specification's rules require of the game, and `KesslerDebugApi`, the debug
-and automation surface `specs/instrumentation.md` specifies. The seeded stub is
-written against both names, so the project does not compile until they exist — a
-fresh workspace failing `npm run typecheck` is the starting point, not a broken
-seed.
+Open the local address Vite prints. Everything runs in the browser. Sound unlocks on the first keyboard or pointer interaction.
 
-`src/game.ts` then exports `game`, a `Game<KesslerState, KesslerDebugApi>`:
-three functions over that state. `initialize` builds the state and the debug
-surface once and returns them together as `[state, debug]`; `update` takes the
-current state as a read-only view (`DeepReadonly<KesslerState>`, from
-`ts-essentials`) and returns the next state, advanced against the frame's delta
-time in seconds; and `render` is handed that next state, read-only again, and
-draws it. The engine holds the state by value and replaces it with whatever
-`update` returns, so a frame builds the next state from the current one rather
-than writing into it, and the type is what guarantees that rendering changes
-nothing. All three currently throw `"not implemented"`. Implement them.
+## Build
 
-**The fixed tick is yours.** The engine hands `update` the real elapsed seconds
-of each frame and imposes no timestep of its own. Kessler advances in whole
-ticks of `TICK_DT`, so `update` accumulates those seconds and resolves each
-whole tick in the order `specs/field.md` fixes, carrying the remainder. Every
-contact is the simulation's own polar crossing math over the state, and drawing
-advances nothing.
+```sh
+npm run build
+npm run preview
+```
 
-The debug surface is a required deliverable. The engine returns it from
-`engine.debug` exactly as `initialize` handed it over, and that is how the game
-is driven from code, so it is present and exactly as `specs/instrumentation.md`
-specifies. Because nothing holds a writable state, its operations are written in
-the shape of `update`: a pose takes the current state and returns the next, and a
-caller applies it through `engine.apply((s) => debug.setScore(s, 500))`; a
-reading takes the state and returns what it read, as
-`debug.snapshot(engine.state)`. Nothing is published to the page.
+Publish the complete `dist/` directory. The site supports a static host's root or a subdirectory. Assets are committed under `assets/`; `public/assets` links that directory into Vite's static bundle. No asset-generation programs, network services, or credentials are needed to build or play.
 
-**You also produce every asset the game plays.** Asset-generation tools are on
-your `PATH` while you build here. `specs/assets.md` is the contract: what to
-produce, which tool produces it, the path it lands at, and how it is wired in.
-The finished files are committed to this repository and loaded through the
-engine's asset loader at runtime, and `npm run build` never invokes the tools.
+## Controls
 
-`@clockwyrks/particle-runtime` is already a dependency, vendored into this
-repository and resolved by a `file:` entry in `package.json`. It plays a produced
-`system.json` into a 2D drawing context — the one `render` receives. Import it
-like any other dependency.
+- **Left / Right** or **A / D**: rotate the deflector.
+- **Space**: launch the parked ball.
+- **P** or **Escape**: pause or resume.
+- **Up / Down** or **W / S**: select a menu item.
+- **Enter / Space**: confirm; **Escape**: return from instructions.
+- Mouse, pen, and touch operate the menus. Flight uses the keyboard.
+- **Backtick**: engine diagnostics.
 
-Tests you write belong beside your sources as `src/**/*.test.ts`. `npm test`
-runs them in process, with coverage over `src/`. The engine's documentation
-carries a complete worked example of testing a game this way.
+Hit near the deflector's edge to steer the outgoing bounce. Cyan outward chevrons widen it; amber inward chevrons narrow it. Three violet dots launch extra balls, the blue shield catches one missed ball, and the gold bolt lets every ball pierce armor.
 
-## What stays as it is
+## Verification
 
-`specs/overview.md` lists the files this project supplies and keeps, including
-`src/main.ts`, `src/constants.ts`, `index.html`, `engine/`, `.vendor/` and the
-toolchain, and states the one change `package.json` takes.
+```sh
+npm run typecheck
+npm run lint
+npm run format
+npm test
+```
 
-## Commands
+The tests run the actual Simple 2D engine with a counted clock and locally decoded sprites, covering menu input, fixed-step simulation, collisions, salvage, scoring, and lifecycle transitions. `src/model.ts` holds the state and geometry, `src/simulation.ts` resolves ticks, `src/debug.ts` provides the specified pure poses, and `src/render.ts` draws the scene. `src/game.ts` connects those modules to the engine.
 
-- `npm run dev` — serves the game with hot reload.
-- `npm run build` — type-checks, then emits the static site into `dist/`.
-- `npm run preview` — serves `dist/` for a final check.
-- `npm run typecheck` — `tsc --noEmit`.
-- `npm run lint` — ESLint.
-- `npm run format` — Prettier, in check mode.
-- `npm test` — Vitest over `src/**/*.test.ts`, with coverage.
+## Original assets and showcase
 
-## This file
+The original planet and five pod sprites were rasterized with `draw`, the six spin frames with `draw-sheet`, and three live particle systems with `particle-2d`. Thirteen synthesized cues and two sequenced music beds use `sfx-synth` and `music`. `scripts/produce.py` preserves their one-time authoring recipe; it is not part of any install or build command. A short endpoint taper closes the music loops.
 
-This starter README is replaced by the `README.md` `specs/overview.md` asks the
-finished build to ship: what the game is, how to install it, how to run it in
-development, how to produce the production build, and the controls.
+`showcase/` contains player-facing copy, screenshots, and a live-play recording captured with the engine recorder.

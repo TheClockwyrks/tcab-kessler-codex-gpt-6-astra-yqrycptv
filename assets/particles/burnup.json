@@ -1,0 +1,70 @@
+{
+  "dimensions": 2,
+  "field": {
+    "width": 200,
+    "height": 200
+  },
+  "durationMs": 1000,
+  "fps": 30,
+  "loop": false,
+  "emitters": [
+    {
+      "name": "debris",
+      "shape": "point",
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "extent": {
+        "radius": 1.0,
+        "size": [
+          1.0,
+          1.0,
+          0.0
+        ]
+      },
+      "emission": {
+        "mode": "burst",
+        "count": 30,
+        "atMs": 0.0
+      },
+      "lifetimeMs": 650.0,
+      "lifetimeSpread": 220.0,
+      "speed": 55.0,
+      "speedSpread": 35.0,
+      "direction": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "coneAngle": 180.0,
+      "forces": {},
+      "particle": {
+        "sizeCurve": {
+          "interp": "linear",
+          "from": 3.0,
+          "to": 0.0
+        },
+        "opacityCurve": {
+          "interp": "linear",
+          "from": 1.0,
+          "to": 0.0
+        },
+        "colorGradient": [
+          {
+            "color": "#ffb579",
+            "at": 0.0
+          },
+          {
+            "color": "#42647a",
+            "at": 1.0
+          }
+        ],
+        "stretch": 0.04
+      }
+    }
+  ],
+  "forces": {},
+  "subEmitters": []
+}
